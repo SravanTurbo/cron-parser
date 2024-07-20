@@ -85,10 +85,6 @@ func TestParse(t *testing.T) {
 	}
 }
 
-func asserCorrectMessage(t testing.TB, got, expected string, err error) {
-
-}
-
 func assertError(t testing.TB, got error, expected string) {
 	t.Helper()
 	if got == nil {
