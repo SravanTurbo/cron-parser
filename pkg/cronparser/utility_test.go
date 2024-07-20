@@ -24,3 +24,25 @@ func TestUtitlity(t *testing.T) {
 
 	})
 }
+
+func assertSuccess(t testing.TB, got, expected interface{}, err error) {
+	t.Helper()
+	if err != nil {
+		t.Fatal("error is not expected here: ", err)
+	}
+
+	if got != expected {
+		t.Errorf("expected %v, but got %v", expected, got)
+	}
+}
+
+func assertError(t testing.TB, got error, expected string) {
+	t.Helper()
+	if got == nil {
+		t.Fatal("expected an error but didn't get one")
+	}
+
+	if got.Error() != expected {
+		t.Errorf("expected %q, but got %q", expected, got)
+	}
+}

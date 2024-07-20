@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
-	"strconv"
 	"strings"
 )
 
@@ -67,73 +66,50 @@ func parse(cronExpr string) (*Schedule, error) {
 		cmd:    cronFields[5]}, nil
 }
 
-func parseField(expr string, bounds bound) ([]int, error) {
-	min, max, interval := 0, -1, 1
-	var result []int
-	var err error
+func parseField(fieldExpr string, bounds bound) ([]int, error) {
+	var values []int
 
-	value, _ := strconv.Atoi(expr)
-	if value > 0 || expr == "0" {
-		result = append(result, value)
-		return result, nil
-	}
-
-	if strings.Contains(expr, ",") {
-		values := strings.Split(expr, ",")
-		for i := 0; i < len(values); i++ {
-			value, err := strconv.Atoi(strings.TrimSpace(values[i]))
-			if err != nil || bounds.min > value || bounds.max < value {
-				return nil, errors.New("invalid value provided")
-			}
-			result = append(result, value)
-		}
-
-		return result, nil
-	}
-
-	if strings.Contains(expr, "/") {
-		exprList := strings.Split(expr, "/")
-
-		interval, err = strconv.Atoi(exprList[1])
+	exprs := strings.Split(fieldExpr, ",")
+	for _, expr := range exprs {
+		value, err := computeField(expr, bounds)
 		if err != nil {
-			return nil, errors.New("invalid interval provided")
+			return nil, err
 		}
 
-		expr = exprList[0]
+		values = append(values, value...)
 	}
 
-	if strings.Contains(expr, "*") {
-		if len(expr) > 1 {
-			return nil, errors.New("invalid cron expression")
-		}
+	return values, nil
+}
 
-		max = bounds.max
+func computeField(expr string, bounds bound) ([]int, error) {
+	fR := NewFieldRange(expr)
+	var result []int
+
+	if err := fR.handleSlash(); err != nil {
+		return nil, err
 	}
 
-	if strings.Contains(expr, "-") {
-		exprList := strings.Split(expr, "-")
-		if len(exprList) > 2 {
-			return nil, errors.New("invalid range provided")
-		}
-
-		min, err = strconv.Atoi(exprList[0])
-		if err != nil || min < bounds.min {
-			return nil, errors.New("invalid minimum value of range")
-		}
-
-		max, err = strconv.Atoi(exprList[1])
-		if err != nil || max > bounds.max {
-			return nil, errors.New("invalid maximum value of range")
-		}
+	if err := fR.handleAsterisk(bounds); err != nil {
+		return nil, err
 	}
 
-	if interval > max && max != -1 {
-		return nil, errors.New("interval out of bounds")
+	if err := fR.handleHyphen(); err != nil {
+		return nil, err
 	}
 
-	result = buildIntList(min, max, interval)
+	if err := fR.handleSingleValue(); err != nil {
+		return nil, err
+	}
+
+	if err := fR.handleInvalidExpr(bounds, FRInitBounds); err != nil {
+		return nil, err
+	}
+
+	result = buildIntList(fR.min, fR.max, fR.interval)
 
 	return result, nil
+
 }
 
 func validate(cronExpr string) ([]string, error) {
