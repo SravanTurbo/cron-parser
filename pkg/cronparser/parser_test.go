@@ -1,7 +1,6 @@
 package cronparser
 
 import (
-	"reflect"
 	"testing"
 )
 
@@ -23,6 +22,27 @@ func TestValidator(t *testing.T) {
 }
 
 func TestComputeField(t *testing.T) {
+	failureTestCases := []struct {
+		name     string
+		expr     string
+		bounds   bound
+		expected string
+	}{
+		{name: "invalid every instant", expr: "2*", bounds: MinuteBound, expected: "strconv.Atoi: parsing \"2*\": invalid syntax"},
+		{name: "every instant", expr: "60", bounds: MinuteBound, expected: "invalid value, out of bounds"},
+		{name: "invalid regular instants", expr: "*/26", bounds: HourBound, expected: "invalid interval"},
+		{name: "invalid bounded instants", expr: "1-32", bounds: DOMBound, expected: "invalid value, out of bounds"},
+		{name: "invalid bounded regular instants", expr: "1-12/2", bounds: DOWBound, expected: "invalid value, out of bounds"},
+		{name: "invalid bounded regular instants 2", expr: "1-4/8", bounds: DOWBound, expected: "invalid interval"},
+	}
+
+	for _, tc := range failureTestCases {
+		t.Run(tc.name, func(t *testing.T) {
+			_, err := computeField(tc.expr, tc.bounds)
+			assertError(t, err, tc.expected)
+		})
+	}
+
 	successTestCases := []struct {
 		name     string
 		expr     string
@@ -30,39 +50,29 @@ func TestComputeField(t *testing.T) {
 		expected []int
 	}{
 		{name: "one instant", expr: "2", bounds: DOWBound, expected: []int{2}},
-		// {name: "every instant", expr: "*", bounds: MinuteBound, expected: buildIntList(0, 59, 1)},
-		// {name: "regular instants", expr: "*/4", bounds: HourBound, expected: buildIntList(0, 23, 4)},
-		// {name: "bounded instants", expr: "1-15", bounds: DOMBound, expected: buildIntList(1, 15, 1)},
-		// {name: "particular instants", expr: "1,4,12", bounds: MonthBound, expected: []int{1, 4, 12}},
-		// {name: "bound regular instants", expr: "1-6/2", bounds: DOWBound, expected: []int{1, 3, 5}},
+		{name: "every instant", expr: "*", bounds: MinuteBound, expected: buildIntList(MinuteBound.min, MinuteBound.max, 1)},
+		{name: "regular instants", expr: "*/4", bounds: HourBound, expected: buildIntList(HourBound.min, HourBound.max, 4)},
+		{name: "bounded instants", expr: "1-15", bounds: DOMBound, expected: buildIntList(1, 15, 1)},
+		{name: "bound regular instants", expr: "1-4/7", bounds: DOWBound, expected: buildIntList(1, 1, 1)},
 	}
 
 	for _, tc := range successTestCases {
 		t.Run(tc.name, func(t *testing.T) {
 			got, err := computeField(tc.expr, tc.bounds)
-			if err != nil {
-				t.Fatal("error is not expected here: ", err)
-			}
-
-			if !reflect.DeepEqual(got, tc.expected) {
-				t.Errorf("expected %v, but got %v", tc.expected, got)
-			}
+			assertSuccess(t, got, tc.expected, err)
 		})
 	}
+}
 
+func TestParseField(t *testing.T) {
 	failureTestCases := []struct {
 		name     string
 		expr     string
 		bounds   bound
 		expected string
 	}{
-		// {name: "invalid every instant", expr: "2*", bounds: MinuteBound, expected: "invalid cron expression"},
-		// // {name: "every instant", expr: "60", bounds: MinuteBound, expected: "invalid maximum value of range"},
-		// {name: "invalid regular instants", expr: "*/24", bounds: HourBound, expected: "interval out of bounds"},
-		// {name: "invalid bounded instants", expr: "1-32", bounds: DOMBound, expected: "invalid maximum value of range"},
-		// {name: "invalid regular instants", expr: "1,4,13", bounds: MonthBound, expected: "invalid value provided"},
-		// {name: "invalid bound regular instants", expr: "1-12/2", bounds: DOWBound, expected: "invalid maximum value of range"},
-		// {name: "invalid bound regular instants", expr: "1-4/7", bounds: DOWBound, expected: "interval out of bounds"},
+		{name: "out of bounds", expr: "1,4,13", bounds: MonthBound, expected: "invalid cron: invalid value, out of bounds"},
+		{name: "chars in expr", expr: "1,a,13", bounds: MonthBound, expected: "invalid cron: strconv.Atoi: parsing \"a\": invalid syntax"},
 	}
 
 	for _, tc := range failureTestCases {
@@ -71,17 +81,34 @@ func TestComputeField(t *testing.T) {
 			assertError(t, err, tc.expected)
 		})
 	}
+
+	successTestCases := []struct {
+		name     string
+		expr     string
+		bounds   bound
+		expected []int
+	}{
+		{name: "special chars in expr", expr: "*,4", bounds: MonthBound, expected: buildIntList(1, 12, 1)}, //***
+		{name: "particular instants", expr: "1,4,12", bounds: MonthBound, expected: []int{1, 4, 12}},
+	}
+
+	for _, tc := range successTestCases {
+		t.Run(tc.name, func(t *testing.T) {
+			got, err := parseField(tc.expr, tc.bounds)
+			assertSuccess(t, got, tc.expected, err)
+		})
+	}
 }
 
-// func TestParse(t *testing.T) {
-// 	cronExpr := "*/15 0 1,15 * 1-5 /usr/bin/find"
-// 	got, err := parse(cronExpr)
-// 	expected := "minute\t\t0 15 30 45\nhour\t\t0\nday of month\t1 15\nmonth\t\t1 2 3 4 5 6 7 8 9 10 11 12\nday of week\t1 2 3 4 5\ncommand\t\t/usr/bin/find"
-// 	if err != nil {
-// 		t.Fatal("error not expected here: ", err)
-// 	}
+func TestParse(t *testing.T) {
+	cronExpr := "*/15 0 1,15 * 1-5 /usr/bin/find"
+	got, err := Parse(cronExpr)
+	expected := "minute\t\t0 15 30 45\nhour\t\t0\nday of month\t1 15\nmonth\t\t1 2 3 4 5 6 7 8 9 10 11 12\nday of week\t1 2 3 4 5\ncommand\t\t/usr/bin/find"
+	if err != nil {
+		t.Fatal("error not expected here: ", err)
+	}
 
-// 	if got.String() != expected {
-// 		t.Errorf("expected \n%s, but got \n%s", expected, got)
-// 	}
-// }
+	if got.String() != expected {
+		t.Errorf("expected \n%s, but got \n%s", expected, got)
+	}
+}

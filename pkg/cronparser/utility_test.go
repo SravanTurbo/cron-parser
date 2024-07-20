@@ -31,7 +31,7 @@ func assertSuccess(t testing.TB, got, expected interface{}, err error) {
 		t.Fatal("error is not expected here: ", err)
 	}
 
-	if got != expected {
+	if !reflect.DeepEqual(got, expected) {
 		t.Errorf("expected %v, but got %v", expected, got)
 	}
 }

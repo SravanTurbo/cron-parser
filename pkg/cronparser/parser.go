@@ -18,7 +18,7 @@ var MonthBound = bound{1, 12}
 var DOWBound = bound{0, 6}
 
 func PrintCronSchedule(cronExpr string) {
-	schedule, err := parse(cronExpr)
+	schedule, err := Parse(cronExpr)
 	if err != nil {
 		panic(err)
 	}
@@ -26,7 +26,7 @@ func PrintCronSchedule(cronExpr string) {
 	fmt.Println(schedule)
 }
 
-func parse(cronExpr string) (*Schedule, error) {
+func Parse(cronExpr string) (*Schedule, error) {
 	cronFields, err := validate(cronExpr)
 	if err != nil {
 		return nil, err
@@ -73,7 +73,13 @@ func parseField(fieldExpr string, bounds bound) ([]int, error) {
 	for _, expr := range exprs {
 		value, err := computeField(expr, bounds)
 		if err != nil {
+			err := errors.New("invalid cron: " + err.Error())
 			return nil, err
+		}
+
+		if expr == "*" {
+			values = value
+			break
 		}
 
 		values = append(values, value...)

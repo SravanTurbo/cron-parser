@@ -4,11 +4,11 @@ Welcome to the project **Cron Parser**.
 Given a cron expression string, it expands each time field to show the times at which it will run.
 
 #### Scope:
- - It runs as command line application with cron string as a string argument:
+ - It runs as command line application with cron string as a single string argument:
    ```
    ~$ your-program "cron-expression"
    ```
- - Cron expression should 6 fields separated by space.
+ - Cron expression should contain **6** fields(command included) separated by space.
  
  - Supports standard **Unix** based cron expressions with **5** time fields and **4** special characters:
 
@@ -64,13 +64,15 @@ Given a cron expression string, it expands each time field to show the times at 
 2. Run using repository code:
     ```
     ~$ cd <project-folder>
-    ~$ go run cmd/main.go <cron-expression (eg: "*/15 0 1,15 * 1-5 /usr/bin/find") >
+    ~$ go run cmd/main.go <cron-expression>
+    ~$ go run cmd/main.go "*/15 0 1,15 * 1-5 /usr/bin/find"   --> example
     ```
 3. Save & Run with binary:
     ```
     ~$ cd <project-folder>
     ~$ go build -o ./bin/cron-parser cmd/main.go
-    ~$ ./bin/cron-parser <cron-expression(eg: "*/15 0 1,15 * 1-5 /usr/bin/find")>
+    ~$ ./bin/cron-parser <cron-expression>
+    ~$ ./bin/cron-parser "*/15 0 1,15 * 1-5 /usr/bin/find"    --> example
 
 ### As a module in your project: (TODO)
 
