@@ -1,0 +1,8 @@
+# Binaries
+bin/
+*.exe
+*.log
+*.out
+
+# Vendor directory
+vendor/
