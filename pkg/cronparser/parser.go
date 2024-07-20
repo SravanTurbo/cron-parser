@@ -85,24 +85,25 @@ func parseField(fieldExpr string, bounds bound) ([]int, error) {
 func computeField(expr string, bounds bound) ([]int, error) {
 	fR := NewFieldRange(expr)
 	var result []int
+	var err error
 
-	if err := fR.handleSlash(); err != nil {
+	if err = fR.handleSlash(); err != nil {
 		return nil, err
 	}
 
-	if err := fR.handleAsterisk(bounds); err != nil {
+	if err = fR.handleAsterisk(bounds); err != nil {
 		return nil, err
 	}
 
-	if err := fR.handleHyphen(); err != nil {
+	if err = fR.handleHyphen(); err != nil {
 		return nil, err
 	}
 
-	if err := fR.handleSingleValue(); err != nil {
+	if err = fR.handleSingleValue(); err != nil {
 		return nil, err
 	}
 
-	if err := fR.handleInvalidExpr(bounds, FRInitBounds); err != nil {
+	if err = fR.handleInvalidExpr(bounds, FRInitBounds); err != nil {
 		return nil, err
 	}
 

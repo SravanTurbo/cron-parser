@@ -22,14 +22,14 @@ func TestValidator(t *testing.T) {
 	}
 }
 
-func TestParseField(t *testing.T) {
+func TestComputeField(t *testing.T) {
 	successTestCases := []struct {
 		name     string
 		expr     string
 		bounds   bound
 		expected []int
 	}{
-		// {name: "one instant", expr: "2", bounds: DOWBound, expected: []int{2}},
+		{name: "one instant", expr: "2", bounds: DOWBound, expected: []int{2}},
 		// {name: "every instant", expr: "*", bounds: MinuteBound, expected: buildIntList(0, 59, 1)},
 		// {name: "regular instants", expr: "*/4", bounds: HourBound, expected: buildIntList(0, 23, 4)},
 		// {name: "bounded instants", expr: "1-15", bounds: DOMBound, expected: buildIntList(1, 15, 1)},
@@ -39,7 +39,7 @@ func TestParseField(t *testing.T) {
 
 	for _, tc := range successTestCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got, err := parseField(tc.expr, tc.bounds)
+			got, err := computeField(tc.expr, tc.bounds)
 			if err != nil {
 				t.Fatal("error is not expected here: ", err)
 			}
