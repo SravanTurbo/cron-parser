@@ -8,6 +8,7 @@ Given a cron expression string, it expands each time field to show the times at 
    ```
    ~$ your-program "cron-expression"
    ```
+ - Cron expression should 6 fields separated by space.
  
  - Supports standard **Unix** based cron expressions with **5** time fields and **4** special characters:
 
@@ -54,13 +55,18 @@ Given a cron expression string, it expands each time field to show the times at 
 ### Run on local machine:
 
 ***Pre-requisite:*** Install go, if not, install from [here](https://go.dev/doc/install).
-1. Test, Run, Build using repository code:
+1. Test the repositord code:
     ```
     ~$ cd <project-folder>
+    ~$ cd pkg/cronparser
     ~$ go test
-    ~$ go run cmd/main.go <cron-expression(eg: "*/15 0 1,15 * 1-5 /usr/bin/find")>
     ```
-2. Run using binary:
+2. Run using repository code:
+    ```
+    ~$ cd <project-folder>
+    ~$ go run cmd/main.go <cron-expression (eg: "*/15 0 1,15 * 1-5 /usr/bin/find") >
+    ```
+3. Save & Run with binary:
     ```
     ~$ cd <project-folder>
     ~$ go build -o ./bin/cron-parser cmd/main.go

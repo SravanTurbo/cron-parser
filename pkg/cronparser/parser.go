@@ -139,7 +139,7 @@ func parseField(expr string, bounds bound) ([]int, error) {
 func validate(cronExpr string) ([]string, error) {
 	cronFields := strings.Split(cronExpr, " ")
 	if len(cronFields) != 6 {
-		return nil, errors.New("Provide valid cron expression with 6 fields, check ReadME")
+		return nil, errors.New("Invalid cron expression, check README")
 	}
 
 	pattern := `[,*-/0-9]`

@@ -6,17 +6,20 @@ import (
 )
 
 func TestValidator(t *testing.T) {
-	t.Run("number of fields", func(t *testing.T) {
-		cronExpr := "*/15 0 1,15 1-5 /usr/bin/find"
-		_, err := validate(cronExpr)
-		assertError(t, err, "Provide valid cron expression with 6 fields, check ReadME")
-	})
+	failureTestCases := []struct {
+		name     string
+		cronExpr string
+		expected string
+	}{
+		{name: "invalid number of fields", cronExpr: "*/15 0 1,15 1-5 /usr/bin/find", expected: "Invalid cron expression, check README"},
+		{name: "invalid special character", cronExpr: "*/15 0 ? 2 1-5 /usr/bin/find", expected: "Invalid cron field"},
+		{name: "extra space in separator", cronExpr: "*/15 0 1  2 1-5 /usr/bin/find", expected: "Invalid cron expression, check README"},
+	}
 
-	t.Run("special characters", func(t *testing.T) {
-		cronExpr := "*/15 0 ? 2 1-5 /usr/bin/find"
-		_, err := validate(cronExpr)
-		assertError(t, err, "Invalid cron field")
-	})
+	for _, tc := range failureTestCases {
+		_, err := validate(tc.cronExpr)
+		assertError(t, err, tc.expected)
+	}
 }
 
 func TestParseField(t *testing.T) {
@@ -80,6 +83,10 @@ func TestParse(t *testing.T) {
 	if got.String() != expected {
 		t.Errorf("expected \n%s, but got \n%s", expected, got)
 	}
+}
+
+func asserCorrectMessage(t testing.TB, got, expected string, err error) {
+
 }
 
 func assertError(t testing.TB, got error, expected string) {

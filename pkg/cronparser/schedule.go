@@ -1,8 +1,6 @@
 package cronparser
 
-import (
-	"fmt"
-)
+import "fmt"
 
 type Schedule struct {
 	minute, hour, dom, month, dow []int
