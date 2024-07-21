@@ -15,6 +15,8 @@ func TestSlashHandler(t *testing.T) {
 		{name: "bounded instant", expr: "0-55", expected: FRInitInterval},
 		{name: "regular instants", expr: "*/4", expected: 4},
 		{name: "bounded regular instant", expr: "1-5/44", expected: 44},
+		// {name: "day abbreviations", expr: "MON-FRI", expected: 1},
+		// {name: "day abbreviations", expr: "MON-FRI", expected: 1},
 	}
 
 	for _, tc := range slashIntervalTestCases {
@@ -246,6 +248,16 @@ func TestInvalidExprHandler(t *testing.T) {
 		fR.max = 55
 		err := fR.handleInvalidExpr(DOMBound, FRInitBounds)
 		expected := "invalid value, out of bounds"
+		assertError(t, err, expected)
+	})
+
+	t.Run("invalid bounds", func(t *testing.T) {
+		expr := "4-2"
+		fR := NewFieldRange(expr)
+		fR.min = 4 //from hyphenMinBoundTestCases.bounded_instants
+		fR.max = 2
+		err := fR.handleInvalidExpr(DOWBound, FRInitBounds)
+		expected := "invalid bounds"
 		assertError(t, err, expected)
 	})
 

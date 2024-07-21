@@ -84,6 +84,10 @@ func (fR fieldRange) handleInvalidExpr(bounds bound, initBounds int) error {
 		return errors.New("invalid value, out of bounds")
 	}
 
+	if fR.min > fR.max {
+		return errors.New("invalid bounds")
+	}
+
 	if fR.interval != 1 {
 		_range := bounds.max - bounds.min + 1
 		if fR.interval > _range {
