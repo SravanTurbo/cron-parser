@@ -55,21 +55,26 @@ Given a cron expression string, it expands each time field to show the times at 
 ### Run on local machine:
 
 ***Pre-requisite:*** Install go, if not, install from [here](https://go.dev/doc/install).
-1. Test the repositord code:
+1. Clone and install dependencies:
     ```
-    ~$ cd <project-folder>
+    ~$ git clone https://github.com/SravanTurbo/cron-parser.git
+    ~$ go mod tidy
+    ```
+2. Test the repositord code:
+    ```
+    ~$ cd <repo>
     ~$ cd pkg/cronparser
     ~$ go test
     ```
-2. Run using repository code:
+3. Run using repository code:
     ```
-    ~$ cd <project-folder>
+    ~$ cd <repo>
     ~$ go run cmd/main.go <cron-expression>
     ~$ go run cmd/main.go "*/15 0 1,15 * 1-5 /usr/bin/find"   --> example
     ```
-3. Save & Run with binary:
+4. Save & Run with binary:
     ```
-    ~$ cd <project-folder>
+    ~$ cd <repo>
     ~$ go build -o ./bin/cron-parser cmd/main.go
     ~$ ./bin/cron-parser <cron-expression>
     ~$ ./bin/cron-parser "*/15 0 1,15 * 1-5 /usr/bin/find"    --> example

@@ -89,6 +89,7 @@ func TestParseField(t *testing.T) {
 		expected []int
 	}{
 		{name: "special chars in expr", expr: "*,4", bounds: MonthBound, expected: buildIntList(1, 12, 1)}, //***
+		{name: "special chars in expr", expr: "*/2,4", bounds: DOMBound, expected: append(buildIntList(1, 31, 2), []int{4}...)},
 		{name: "particular instants", expr: "1,4,12", bounds: MonthBound, expected: []int{1, 4, 12}},
 	}
 
