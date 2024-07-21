@@ -1,15 +1,17 @@
 ## About
 Welcome to the project **Cron Parser**. 
 
-Given a cron expression string, it expands each time field to show the times at which it will run.
+Given a cron expression string, it expands each time field to show the times(UTC) at which it will run.
 
 #### Scope:
  - It runs as command line application with cron string as a single string argument:
    ```
    ~$ your-program "cron-expression"
    ```
- - Cron expression should contain **6** fields(command included) separated by space.
- 
+ - Cron expression should contain **6** fields(command included) separated by space, fields should have not contain any space.
+    ```
+    eg: "30 4 1,15 * * /cmd"   //At 4:30 UTC on 1st and 15th of every month
+    ```
  - Supports standard **Unix** based cron expressions with **5** time fields and **4** special characters:
 
     ```
