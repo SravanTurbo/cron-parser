@@ -18,8 +18,8 @@ Given a cron expression string, it expands each time field to show the times at 
     Minutes              0-59              * / , -
     Hours                0-23              * / , -
     Day of month         1-31              * / , - 
-    Month                1-12              * / , -
-    Day of week          0-6               * / , - 
+    Month                1-12 JAN-DEC      * / , -
+    Day of week          0-6, SUN-SAT      * / , - 
     ```
 
    

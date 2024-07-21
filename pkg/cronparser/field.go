@@ -35,41 +35,30 @@ func (fR *fieldRange) handleSlash() (err error) {
 
 func (fR *fieldRange) handleAsterisk(bounds bound) (err error) {
 	if fR.expr == "*" {
-		fR.min = bounds.min
-		fR.max = bounds.max
-		fR.expr = ""
-	}
-
-	return nil
-}
-
-func (fR *fieldRange) handleHyphen() (err error) {
-	exprList := strings.Split(fR.expr, "-")
-	if len(exprList) == 2 {
-		fR.min, err = strconv.Atoi(exprList[0])
-		if err != nil {
-			return
-		}
-
-		fR.max, err = strconv.Atoi(exprList[1])
-		if err != nil {
-			return
-		}
-
-		fR.expr = ""
+		fR.expr = strconv.Itoa(bounds.min) + "-" + strconv.Itoa(bounds.max)
 	}
 	return
 }
 
 func (fR *fieldRange) handleSingleValue() (err error) {
-	if fR.expr != "" {
-		fR.min, err = strconv.Atoi(fR.expr)
+	exprList := strings.Split(fR.expr, "-")
+	if len(exprList) == 1 {
+		fR.expr = exprList[0] + "-" + exprList[0]
+	}
+	return
+}
+
+func (fR *fieldRange) handleHyphen(abbreviationMap map[string]string) (err error) {
+	exprList := strings.Split(fR.expr, "-")
+	if len(exprList) == 2 {
+		fR.min, err = computeValue(exprList[0], abbreviationMap)
 		if err != nil {
-			return err
+			return
 		}
 
-		if fR.min >= 0 {
-			fR.max = fR.min
+		fR.max, err = computeValue(exprList[1], abbreviationMap)
+		if err != nil {
+			return
 		}
 	}
 	return
@@ -96,4 +85,14 @@ func (fR fieldRange) handleInvalidExpr(bounds bound, initBounds int) error {
 	}
 
 	return nil
+}
+
+func computeValue(expr string, abbrMap map[string]string) (val int, err error) {
+	abbrVal, ok := abbrMap[strings.ToUpper(expr)]
+	if !ok {
+		abbrVal = expr
+	}
+
+	val, err = strconv.Atoi(abbrVal)
+	return
 }
