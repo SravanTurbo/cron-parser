@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"sort"
 	"strings"
 )
 
@@ -70,25 +71,29 @@ func Parse(cronExpr string) (*Schedule, error) {
 }
 
 func parseField(fieldExpr string, bounds bound, abbreviationMap map[string]string) ([]int, error) {
-	var values []int
+	uniqueMap := make(map[int]struct{})
 
 	exprs := strings.Split(fieldExpr, ",")
 	for _, expr := range exprs {
-		value, err := computeField(expr, bounds, abbreviationMap)
+		valueList, err := computeField(expr, bounds, abbreviationMap)
 		if err != nil {
 			err := errors.New("invalid cron: " + err.Error())
 			return nil, err
 		}
 
-		if expr == "*" {
-			values = value
-			break
+		for _, val := range valueList {
+			uniqueMap[val] = struct{}{}
 		}
-
-		values = append(values, value...)
 	}
 
-	return values, nil
+	uniqueList := make([]int, 0, len(uniqueMap))
+	for key := range uniqueMap {
+		uniqueList = append(uniqueList, key)
+	}
+
+	sort.Ints(uniqueList)
+
+	return uniqueList, nil
 }
 
 func computeField(expr string, bounds bound, abbreviationMap map[string]string) ([]int, error) {

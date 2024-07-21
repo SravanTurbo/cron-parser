@@ -70,14 +70,15 @@ Given a cron expression string, it expands each time field to show the times at 
     ```
     ~$ cd <repo>
     ~$ go run cmd/main.go <cron-expression>
-    ~$ go run cmd/main.go "*/15 0 1,15 * 1-5 /usr/bin/find"   --> example
+    ~$ go run cmd/main.go "*/15 0 1,15 * 1-5 /usr/bin/find"            --> example1
+    ~$ go run cmd/main.go "5 4 */15,4 2,SEP */2,Mon,5 /usr/bin/find"   --> example2
     ```
 4. Save & Run with binary:
     ```
     ~$ cd <repo>
     ~$ go build -o ./bin/cron-parser cmd/main.go
     ~$ ./bin/cron-parser <cron-expression>
-    ~$ ./bin/cron-parser "*/15 0 1,15 * 1-5 /usr/bin/find"    --> example
+    ~$ ./bin/cron-parser "*/15 0 1,15 * 1-5 /usr/bin/find"             --> example
 
 ### As a module in your project: (TODO)
 

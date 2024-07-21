@@ -124,7 +124,7 @@ func TestHyphenHandler(t *testing.T) {
 		{name: "maxBound: particular instant", expr: "0-0", abbr: map[string]string{}, expected: 0},
 		{name: "maxBound: bounded instants", expr: "0-55", abbr: map[string]string{}, expected: 55},
 		{name: "maxBound: single abbreviation", expr: "Jan-Jan", abbr: MONTH_ABBREVIATIONS, expected: 1},
-		{name: "maxBound: multiple abbreviation", expr: "Mon-Fri", abbr: DOW_ABBREVIATIONS, expected: 5},
+		{name: "maxBound: multiple abbreviation", expr: "Fri-Mon", abbr: DOW_ABBREVIATIONS, expected: 1},
 	}
 
 	for _, tc := range hyphenMaxBoundTestCases {
@@ -141,10 +141,10 @@ func TestHyphenHandler(t *testing.T) {
 		abbr     map[string]string
 		expected int
 	}{
-		{name: "particular instant", expr: "0-0", abbr: map[string]string{}, expected: 0},
-		{name: "bounded instants", expr: "0-55", abbr: map[string]string{}, expected: 0},
-		{name: "single abbreviation", expr: "Jan-Jan", abbr: MONTH_ABBREVIATIONS, expected: 1},
-		{name: "multiple abbreviations", expr: "MON-Fri", abbr: DOW_ABBREVIATIONS, expected: 1},
+		{name: "minBound: particular instant", expr: "0-0", abbr: map[string]string{}, expected: 0},
+		{name: "minBound: bounded instants", expr: "0-55", abbr: map[string]string{}, expected: 0},
+		{name: "minBound: single abbreviation", expr: "Jan-Jan", abbr: MONTH_ABBREVIATIONS, expected: 1},
+		{name: "minBound: multiple abbreviations", expr: "Fri-MoN", abbr: DOW_ABBREVIATIONS, expected: 5},
 	}
 
 	for _, tc := range hyphenMinBoundTestCases {
@@ -199,11 +199,12 @@ func TestInvalidExprHandler(t *testing.T) {
 		assertError(t, err, expected)
 	})
 
-	t.Run("invalid bounds", func(t *testing.T) {
-		expr := "4-2"
-		fR := NewFieldRange(expr)
-		fR.min = 4 //from hyphenMinBoundTestCases.bounded_instants
-		fR.max = 2
+	t.Run("invalid abbr bounds", func(t *testing.T) {
+		expr := "Fri-Mon"
+		fR := NewFieldRange(expr) //from hyphenMinBoundTestCases.bounded_instants
+		fR.interval = 1
+		fR.min = 5
+		fR.max = 1
 		err := fR.handleInvalidExpr(DOWBound, FRInitBounds)
 		expected := "invalid bounds"
 		assertError(t, err, expected)
