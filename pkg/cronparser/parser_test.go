@@ -10,14 +10,16 @@ func TestValidator(t *testing.T) {
 		cronExpr string
 		expected string
 	}{
-		{name: "invalid number of fields", cronExpr: "*/15 0 1,15 1-5 /usr/bin/find", expected: "Invalid cron expression, check README"},
-		{name: "invalid special character", cronExpr: "*/15 0 ? 2 1-5 /usr/bin/find", expected: "Invalid cron field"},
-		{name: "extra space in separator", cronExpr: "*/15 0 1, 2 2 1-5 /usr/bin/find", expected: "Invalid cron expression, check README"},
+		{name: "extra space in separator", cronExpr: "*/15 0 1, 2 2 1-5 /usr/bin/find", expected: "validation error: invalid number of cron fields"},
+		{name: "invalid number of fields", cronExpr: "*/15 0 1,15 1-5 /usr/bin/find", expected: "validation error: invalid number of cron fields"},
+		{name: "invalid special character", cronExpr: "*/15 0 ? 2 1-5 /usr/bin/find", expected: "validation error: invalid time field"},
 	}
 
 	for _, tc := range failureTestCases {
-		_, err := validate(tc.cronExpr)
-		assertError(t, err, tc.expected)
+		t.Run(tc.name, func(t *testing.T) {
+			_, err := validate(tc.cronExpr)
+			assertError(t, err, tc.expected)
+		})
 	}
 }
 

@@ -12,9 +12,9 @@ func TestSlashHandler(t *testing.T) {
 	}{
 		{name: "every instant", expr: "*", expected: FRInitInterval},
 		{name: "particular instant", expr: "0", expected: FRInitInterval},
-		{name: "bounded instant", expr: "0-55", expected: FRInitInterval},
+		{name: "bounded instants", expr: "0-55", expected: FRInitInterval},
 		{name: "regular instants", expr: "*/44", expected: 44},
-		{name: "bounded regular instant", expr: "1-5/0", expected: 0},
+		{name: "bounded regular instants", expr: "1-5/0", expected: 0},
 		{name: "multiple abbreviations", expr: "MON-Fri", expected: 1},
 		{name: "single abbreviation", expr: "Jan", expected: 1},
 	}
@@ -34,9 +34,9 @@ func TestSlashHandler(t *testing.T) {
 	}{
 		{name: "every instant", expr: "*", expected: "*"},
 		{name: "particular instant", expr: "0", expected: "0"},
-		{name: "bounded instant", expr: "0-55", expected: "0-55"},
+		{name: "bounded instants", expr: "0-55", expected: "0-55"},
 		{name: "regular instants", expr: "*/44", expected: "*"},
-		{name: "bounded regular instant", expr: "1-5/0", expected: "1-5"},
+		{name: "bounded regular instants", expr: "1-5/0", expected: "1-5"},
 		{name: "multiple abbreviations", expr: "MON-Fri", expected: "MON-Fri"},
 		{name: "single abbreviation", expr: "Jan", expected: "Jan"},
 	}
@@ -58,8 +58,10 @@ func TestAsteriskHandler(t *testing.T) {
 		expected string
 	}{
 		{name: "every instant", expr: "*", bounds: MinuteBound, expected: "0-59"},
-		{name: "particular instant", expr: "0", bounds: HourBound, expected: "0"},
+		{name: "particular instant", expr: "?", bounds: HourBound, expected: "?"},
 		{name: "bounded instants", expr: "0-55", bounds: DOMBound, expected: "0-55"},
+		{name: "regular instants", expr: "*/44", expected: "*/44"},
+		{name: "bounded regular instants", expr: "1-5/0", expected: "1-5/0"},
 		{name: "multiple abbreviations", expr: "MON-Fri", bounds: DOMBound, expected: "MON-Fri"},
 		{name: "single abbreviation", expr: "Jan", expected: "Jan"},
 	}
@@ -83,6 +85,8 @@ func TestSingleValueHandler(t *testing.T) {
 		{name: "particular instant", expr: "0", bounds: HourBound, expected: "0-0"},
 		{name: "invalid particular instant", expr: "55", bounds: DOMBound, expected: "55-55"},
 		{name: "invalid special char", expr: "?", bounds: MinuteBound, expected: "?-?"},
+		{name: "regular instants", expr: "*/44", expected: "*/44-*/44"},
+		{name: "bounded regular instants", expr: "1-5/0", expected: "1-5/0"},
 		{name: "multiple abbreviation", expr: "Mon-Fri", expected: "Mon-Fri"},
 		{name: "single abbreviation", expr: "Janu", expected: "Janu-Janu"},
 	}
@@ -105,6 +109,7 @@ func TestHyphenHandler(t *testing.T) {
 	}{
 		{name: "invalid special char", expr: "?-?", abbr: map[string]string{}, expected: "strconv.Atoi: parsing \"?\": invalid syntax"},
 		{name: "invalid abbreviation", expr: "Janu-Janu", abbr: MONTH_ABBREVIATIONS, expected: "strconv.Atoi: parsing \"Janu\": invalid syntax"},
+		{name: "with interval", expr: "1-5/0", abbr: DOW_ABBREVIATIONS, expected: "strconv.Atoi: parsing \"5/0\": invalid syntax"},
 	}
 
 	for _, tc := range hyphenFailureTestCases {

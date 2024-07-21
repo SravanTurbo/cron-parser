@@ -22,6 +22,12 @@ var DOW_ABBREVIATIONS = map[string]string{"SUN": "0", "MON": "1", "TUE": "2", "W
 var MONTH_ABBREVIATIONS = map[string]string{"JAN": "1", "FEB": "2", "MAR": "3", "APR": "4", "MAY": "5", "JUN": "6", "JUL": "7", "AUG": "8", "SEP": "9", "OCT": "10", "NOV": "11", "DEC": "11"}
 
 func PrintCronSchedule(cronExpr string) {
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Println(err)
+		}
+	}()
+
 	schedule, err := Parse(cronExpr)
 	if err != nil {
 		panic(err)
@@ -130,18 +136,18 @@ func computeField(expr string, bounds bound, abbreviationMap map[string]string) 
 func validate(cronExpr string) ([]string, error) {
 	cronFields := strings.Split(cronExpr, " ")
 	if len(cronFields) != 6 {
-		return nil, errors.New("Invalid cron expression, check README")
+		return nil, errors.New("validation error: invalid number of cron fields")
 	}
 
-	pattern := `[,*-/0-9]`
+	pattern := `[\*\,\-\/0-9a-zA-Z]`
 	re, err := regexp.Compile(pattern)
 	if err != nil {
-		return nil, errors.New("Failed to compile Regexp")
+		return nil, errors.New("validation error: failed to compile Regexp")
 	}
 
-	for i := 0; i < 6; i++ {
+	for i := 0; i < 5; i++ {
 		if !re.MatchString(cronFields[i]) {
-			return nil, errors.New("Invalid cron field")
+			return nil, errors.New("validation error: invalid time field")
 		}
 	}
 

@@ -17,11 +17,11 @@ Given a cron expression string, it expands each time field to show the times(UTC
     ```
     Field Name      Allowed Values    Allowed Special Characters
     ----------      --------------    --------------------------
-    Minutes              0-59              * / , -
-    Hours                0-23              * / , -
-    Day of month         1-31              * / , - 
-    Month                1-12 JAN-DEC      * / , -
-    Day of week          0-6, SUN-SAT      * / , - 
+    Minutes             0-59                  * / , -
+    Hours               0-23                  * / , -
+    Day of month        1-31                  * / , - 
+    Month               1-12 or JAN-DEC       * / , -
+    Day of week         0-6  or SUN-SAT       * / , - 
     ```
 
    
@@ -62,7 +62,7 @@ Given a cron expression string, it expands each time field to show the times(UTC
     ~$ git clone https://github.com/SravanTurbo/cron-parser.git
     ~$ go mod tidy
     ```
-2. Test the repositord code:
+2. Test the repository code:
     ```
     ~$ cd <repo>
     ~$ cd pkg/cronparser
