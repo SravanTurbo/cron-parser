@@ -220,12 +220,23 @@ func TestSingleValueHandler(t *testing.T) {
 }
 
 func TestInvalidExprHandler(t *testing.T) {
-	t.Run("invalid interval", func(t *testing.T) {
+	t.Run("invalid max interval", func(t *testing.T) {
 		expr := "1-5/44"
 		fR := NewFieldRange(expr)
 		fR.interval = 44 ////from TestSlashHandler.bounded_regular_instant
 		fR.min = 1
 		fR.max = 5
+		err := fR.handleInvalidExpr(DOWBound, FRInitBounds)
+		expected := "invalid interval"
+		assertError(t, err, expected)
+	})
+
+	t.Run("invalid min interval", func(t *testing.T) {
+		expr := "*/0"
+		fR := NewFieldRange(expr)
+		fR.interval = 0 ////from TestSlashHandler.bounded_regular_instant
+		fR.min = 0
+		fR.max = 6
 		err := fR.handleInvalidExpr(DOWBound, FRInitBounds)
 		expected := "invalid interval"
 		assertError(t, err, expected)

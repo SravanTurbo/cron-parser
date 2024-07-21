@@ -90,7 +90,7 @@ func (fR fieldRange) handleInvalidExpr(bounds bound, initBounds int) error {
 
 	if fR.interval != 1 {
 		_range := bounds.max - bounds.min + 1
-		if fR.interval > _range {
+		if fR.interval > _range || fR.interval == 0 {
 			return errors.New("invalid interval")
 		}
 	}
