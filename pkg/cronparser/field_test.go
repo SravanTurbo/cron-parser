@@ -21,9 +21,9 @@ func TestSlashHandler(t *testing.T) {
 
 	for _, tc := range slashIntervalTestCases {
 		t.Run(tc.name, func(t *testing.T) {
-			fR := NewFieldRange(tc.expr)
-			err := fR.handleSlash()
-			assertSuccess(t, fR.interval, tc.expected, err)
+			cf := NewCronField(tc.expr)
+			err := cf.handleSlash()
+			assertSuccess(t, cf.interval, tc.expected, err)
 		})
 	}
 
@@ -43,9 +43,9 @@ func TestSlashHandler(t *testing.T) {
 
 	for _, tc := range slashExprTestCases {
 		t.Run(tc.name, func(t *testing.T) {
-			fR := NewFieldRange(tc.expr)
-			err := fR.handleSlash()
-			assertSuccess(t, fR.expr, tc.expected, err)
+			cf := NewCronField(tc.expr)
+			err := cf.handleSlash()
+			assertSuccess(t, cf.expr, tc.expected, err)
 		})
 	}
 }
@@ -68,9 +68,9 @@ func TestAsteriskHandler(t *testing.T) {
 
 	for _, tc := range asteriskTestCases {
 		t.Run(tc.name, func(t *testing.T) {
-			fR := NewFieldRange(tc.expr)
-			err := fR.handleAsterisk(tc.bounds)
-			assertSuccess(t, fR.expr, tc.expected, err)
+			cf := NewCronField(tc.expr)
+			err := cf.handleAsterisk(tc.bounds)
+			assertSuccess(t, cf.expr, tc.expected, err)
 		})
 	}
 }
@@ -93,9 +93,9 @@ func TestSingleValueHandler(t *testing.T) {
 
 	for _, tc := range svTestCases {
 		t.Run(tc.name, func(t *testing.T) {
-			fR := NewFieldRange(tc.expr)
-			err := fR.handleSingleValue()
-			assertSuccess(t, fR.expr, tc.expected, err)
+			cf := NewCronField(tc.expr)
+			err := cf.handleSingleValue()
+			assertSuccess(t, cf.expr, tc.expected, err)
 		})
 	}
 }
@@ -114,8 +114,8 @@ func TestHyphenHandler(t *testing.T) {
 
 	for _, tc := range hyphenFailureTestCases {
 		t.Run(tc.name, func(t *testing.T) {
-			fR := NewFieldRange(tc.expr)
-			err := fR.handleHyphen(tc.abbr)
+			cf := NewCronField(tc.expr)
+			err := cf.handleHyphen(tc.abbr)
 			assertError(t, err, tc.expected)
 		})
 	}
@@ -134,9 +134,9 @@ func TestHyphenHandler(t *testing.T) {
 
 	for _, tc := range hyphenMaxBoundTestCases {
 		t.Run(tc.name, func(t *testing.T) {
-			fR := NewFieldRange(tc.expr)
-			err := fR.handleHyphen(tc.abbr)
-			assertSuccess(t, fR.max, tc.expected, err)
+			cf := NewCronField(tc.expr)
+			err := cf.handleHyphen(tc.abbr)
+			assertSuccess(t, cf.max, tc.expected, err)
 		})
 	}
 
@@ -154,9 +154,9 @@ func TestHyphenHandler(t *testing.T) {
 
 	for _, tc := range hyphenMinBoundTestCases {
 		t.Run(tc.name, func(t *testing.T) {
-			fR := NewFieldRange(tc.expr)
-			err := fR.handleHyphen(tc.abbr)
-			assertSuccess(t, fR.min, tc.expected, err)
+			cf := NewCronField(tc.expr)
+			err := cf.handleHyphen(tc.abbr)
+			assertSuccess(t, cf.min, tc.expected, err)
 		})
 	}
 }
@@ -164,64 +164,64 @@ func TestHyphenHandler(t *testing.T) {
 func TestInvalidExprHandler(t *testing.T) {
 	t.Run("invalid max interval", func(t *testing.T) {
 		expr := "1-5/44"
-		fR := NewFieldRange(expr)
-		fR.interval = 44 ////from TestSlashHandler.bounded_regular_instant
-		fR.min = 1
-		fR.max = 5
-		err := fR.handleInvalidExpr(DOWBound, FRInitBounds)
+		cf := NewCronField(expr)
+		cf.interval = 44 ////from TestSlashHandler.bounded_regular_instant
+		cf.min = 1
+		cf.max = 5
+		err := cf.handleInvalidExpr(DOWBound, FRInitBounds)
 		expected := "invalid interval"
 		assertError(t, err, expected)
 	})
 
 	t.Run("invalid min interval", func(t *testing.T) {
 		expr := "*/0"
-		fR := NewFieldRange(expr)
-		fR.interval = 0 ////from TestSlashHandler.bounded_regular_instant
-		fR.min = 0
-		fR.max = 6
-		err := fR.handleInvalidExpr(DOWBound, FRInitBounds)
+		cf := NewCronField(expr)
+		cf.interval = 0 ////from TestSlashHandler.bounded_regular_instant
+		cf.min = 0
+		cf.max = 6
+		err := cf.handleInvalidExpr(DOWBound, FRInitBounds)
 		expected := "invalid interval"
 		assertError(t, err, expected)
 	})
 
 	t.Run("invalid Max bound", func(t *testing.T) {
 		expr := "0-55"
-		fR := NewFieldRange(expr)
-		fR.max = 55 //from hyphenMaxBoundTestCases.bounded_instants
-		fR.min = 0
-		err := fR.handleInvalidExpr(DOMBound, FRInitBounds)
+		cf := NewCronField(expr)
+		cf.max = 55 //from hyphenMaxBoundTestCases.bounded_instants
+		cf.min = 0
+		err := cf.handleInvalidExpr(DOMBound, FRInitBounds)
 		expected := "invalid value, out of bounds"
 		assertError(t, err, expected)
 	})
 
 	t.Run("invalid Min bound", func(t *testing.T) {
 		expr := "0-55"
-		fR := NewFieldRange(expr)
-		fR.min = 0 //from hyphenMinBoundTestCases.bounded_instants
-		fR.max = 55
-		err := fR.handleInvalidExpr(DOMBound, FRInitBounds)
+		cf := NewCronField(expr)
+		cf.min = 0 //from hyphenMinBoundTestCases.bounded_instants
+		cf.max = 55
+		err := cf.handleInvalidExpr(DOMBound, FRInitBounds)
 		expected := "invalid value, out of bounds"
 		assertError(t, err, expected)
 	})
 
 	t.Run("invalid abbr bounds", func(t *testing.T) {
 		expr := "Fri-Mon"
-		fR := NewFieldRange(expr) //from hyphenMinBoundTestCases.bounded_instants
-		fR.interval = 1
-		fR.min = 5
-		fR.max = 1
-		err := fR.handleInvalidExpr(DOWBound, FRInitBounds)
+		cf := NewCronField(expr) //from hyphenMinBoundTestCases.bounded_instants
+		cf.interval = 1
+		cf.min = 5
+		cf.max = 1
+		err := cf.handleInvalidExpr(DOWBound, FRInitBounds)
 		expected := "invalid bounds"
 		assertError(t, err, expected)
 	})
 
 	t.Run("valid single Value", func(t *testing.T) {
 		expr := "2"
-		fR := NewFieldRange(expr)
-		fR.interval = 1
-		fR.min = 2
-		fR.max = 2
-		err := fR.handleInvalidExpr(DOWBound, FRInitBounds)
+		cf := NewCronField(expr)
+		cf.interval = 1
+		cf.min = 2
+		cf.max = 2
+		err := cf.handleInvalidExpr(DOWBound, FRInitBounds)
 		if err != nil {
 			t.Fatal("error is not expected here: ", err)
 		}

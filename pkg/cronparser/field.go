@@ -6,57 +6,58 @@ import (
 	"strings"
 )
 
-type fieldRange struct {
-	expr     string
-	min      int
-	max      int
-	interval int
+type cronField struct {
+	expr      string
+	min       int
+	max       int
+	interval  int
+	valueList []int
 }
 
 const FRInitBounds = -1  //Initial Bounds of a Cron Field Range
 const FRInitInterval = 1 //Initial Interval for a Cron Field Range
 
-func NewFieldRange(expr string) *fieldRange {
-	return &fieldRange{expr: expr, min: FRInitBounds, max: FRInitBounds, interval: FRInitInterval}
+func NewCronField(expr string) *cronField {
+	return &cronField{expr: expr, min: FRInitBounds, max: FRInitBounds, interval: FRInitInterval}
 }
 
-func (fR *fieldRange) handleSlash() (err error) {
-	exprList := strings.Split(fR.expr, "/")
+func (cf *cronField) handleSlash() (err error) {
+	exprList := strings.Split(cf.expr, "/")
 	if len(exprList) == 2 {
-		fR.interval, err = strconv.Atoi(exprList[1])
+		cf.interval, err = strconv.Atoi(exprList[1])
 		if err != nil {
 			return
 		}
 
-		fR.expr = exprList[0]
+		cf.expr = exprList[0]
 	}
 	return
 }
 
-func (fR *fieldRange) handleAsterisk(bounds bound) (err error) {
-	if fR.expr == "*" {
-		fR.expr = strconv.Itoa(bounds.min) + "-" + strconv.Itoa(bounds.max)
+func (cf *cronField) handleAsterisk(bounds bound) (err error) {
+	if cf.expr == "*" {
+		cf.expr = strconv.Itoa(bounds.min) + "-" + strconv.Itoa(bounds.max)
 	}
 	return
 }
 
-func (fR *fieldRange) handleSingleValue() (err error) {
-	exprList := strings.Split(fR.expr, "-")
+func (cf *cronField) handleSingleValue() (err error) {
+	exprList := strings.Split(cf.expr, "-")
 	if len(exprList) == 1 {
-		fR.expr = exprList[0] + "-" + exprList[0]
+		cf.expr = exprList[0] + "-" + exprList[0]
 	}
 	return
 }
 
-func (fR *fieldRange) handleHyphen(abbreviationMap map[string]string) (err error) {
-	exprList := strings.Split(fR.expr, "-")
+func (cf *cronField) handleHyphen(abbreviationMap map[string]string) (err error) {
+	exprList := strings.Split(cf.expr, "-")
 	if len(exprList) == 2 {
-		fR.min, err = computeValue(exprList[0], abbreviationMap)
+		cf.min, err = computeValue(exprList[0], abbreviationMap)
 		if err != nil {
 			return
 		}
 
-		fR.max, err = computeValue(exprList[1], abbreviationMap)
+		cf.max, err = computeValue(exprList[1], abbreviationMap)
 		if err != nil {
 			return
 		}
@@ -64,22 +65,22 @@ func (fR *fieldRange) handleHyphen(abbreviationMap map[string]string) (err error
 	return
 }
 
-func (fR fieldRange) handleInvalidExpr(bounds bound, initBounds int) error {
-	if fR.min == initBounds || fR.max == initBounds {
+func (cf cronField) handleInvalidExpr(bounds bound, initBounds int) error {
+	if cf.min == initBounds || cf.max == initBounds {
 		return errors.New("invalid cron field")
 	}
 
-	if fR.min < bounds.min || fR.max > bounds.max {
+	if cf.min < bounds.min || cf.max > bounds.max {
 		return errors.New("invalid value, out of bounds")
 	}
 
-	if fR.min > fR.max {
+	if cf.min > cf.max {
 		return errors.New("invalid bounds")
 	}
 
-	if fR.interval != 1 {
+	if cf.interval != 1 {
 		_range := bounds.max - bounds.min + 1
-		if fR.interval > _range || fR.interval == 0 {
+		if cf.interval > _range || cf.interval == 0 {
 			return errors.New("invalid interval")
 		}
 	}
