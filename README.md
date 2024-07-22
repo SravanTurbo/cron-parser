@@ -1,25 +1,27 @@
 ## About
 Welcome to the project **Cron Parser**. 
 
-Given a cron expression string, it expands each time field to show the times at which it will run.
+Given a cron expression string, it expands each time field to show the times(UTC) at which it will run.
 
 #### Scope:
  - It runs as command line application with cron string as a single string argument:
    ```
    ~$ your-program "cron-expression"
    ```
- - Cron expression should contain **6** fields(command included) separated by space.
- 
+ - Cron expression should contain **6** fields(command included) separated by space, fields should have not contain any space.
+    ```
+    eg: "30 4 1,15 * * /cmd"   //At 4:30 UTC on 1st and 15th of every month
+    ```
  - Supports standard **Unix** based cron expressions with **5** time fields and **4** special characters:
 
     ```
     Field Name      Allowed Values    Allowed Special Characters
     ----------      --------------    --------------------------
-    Minutes              0-59              * / , -
-    Hours                0-23              * / , -
-    Day of month         1-31              * / , - 
-    Month                1-12              * / , -
-    Day of week          0-6               * / , - 
+    Minutes             0-59                  * / , -
+    Hours               0-23                  * / , -
+    Day of month        1-31                  * / , - 
+    Month               1-12 or JAN-DEC       * / , -
+    Day of week         0-6  or SUN-SAT       * / , - 
     ```
 
    
@@ -55,30 +57,39 @@ Given a cron expression string, it expands each time field to show the times at 
 ### Run on local machine:
 
 ***Pre-requisite:*** Install go, if not, install from [here](https://go.dev/doc/install).
-1. Test the repositord code:
+1. Clone and install dependencies:
     ```
-    ~$ cd <project-folder>
+    ~$ git clone https://github.com/SravanTurbo/cron-parser.git
+    ~$ go mod tidy
+    ```
+2. Test the repository code:
+    ```
+    ~$ cd <repo>
     ~$ cd pkg/cronparser
     ~$ go test
     ```
-2. Run using repository code:
+3. Run using repository code:
     ```
-    ~$ cd <project-folder>
+    ~$ cd <repo>
     ~$ go run cmd/main.go <cron-expression>
-    ~$ go run cmd/main.go "*/15 0 1,15 * 1-5 /usr/bin/find"   --> example
+    ~$ go run cmd/main.go "*/15 0 1,15 * 1-5 /usr/bin/find"            --> example1
+    ~$ go run cmd/main.go "5 4 */15,4 2,SEP */2,Mon,5 cmd"             --> example2
     ```
-3. Save & Run with binary:
+4. Save & Run with binary:
     ```
-    ~$ cd <project-folder>
+    ~$ cd <repo>
     ~$ go build -o ./bin/cron-parser cmd/main.go
     ~$ ./bin/cron-parser <cron-expression>
-    ~$ ./bin/cron-parser "*/15 0 1,15 * 1-5 /usr/bin/find"    --> example
+    ~$ ./bin/cron-parser "*/15 0 1,15 * 1-5 /usr/bin/find"             --> example
 
 ### As a module in your project: (TODO)
+
+Since it is developed as a package, can be added to a project:
 
 1. Add pkg to your repository:
 
     ```
+    ~$ cd <project-folder>
     ~$ go get github.com/sravan-turbo/cron-parser
     ```
 2. Import pkg in repository file and use:
