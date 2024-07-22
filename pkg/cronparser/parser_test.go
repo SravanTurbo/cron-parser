@@ -169,7 +169,7 @@ func TestParse(t *testing.T) {
 		{name: "SC: assigment example", cronExpr: "*/15 0 1,15 * 1-5 /usr/bin/find", expected: "minute\t\t0 15 30 45\nhour\t\t0\nday of month\t1 15\nmonth\t\t1 2 3 4 5 6 7 8 9 10 11 12\nday of week\t1 2 3 4 5\ncommand\t\t/usr/bin/find"},
 		{name: "SC: assigment example abbr", cronExpr: "*/15 0 1,15 Jan-Dec Mon-Fri /usr/bin/find", expected: "minute\t\t0 15 30 45\nhour\t\t0\nday of month\t1 15\nmonth\t\t1 2 3 4 5 6 7 8 9 10 11 12\nday of week\t1 2 3 4 5\ncommand\t\t/usr/bin/find"},
 
-		{name: "SC: combination of abbr and int", cronExpr: "5 4 */15,4 2,SEP */2,Mon,5 cmd", expected: "minute\t\t5\nhour\t\t4\nday of month\t1 4 16 31\nmonth\t\t2 9\nday of week\t0 1 2 4 5 6\ncommand\t\tcmd"},
+		{name: "SC: combination of abbr and int", cronExpr: "30 4 */15,4 2,SEP */2,Mon,5 cmd", expected: "minute\t\t30\nhour\t\t4\nday of month\t1 4 16 31\nmonth\t\t2 9\nday of week\t0 1 2 4 5 6\ncommand\t\tcmd"},
 	}
 
 	for _, tc := range parseSuccessTestCases {

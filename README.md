@@ -73,7 +73,7 @@ Given a cron expression string, it expands each time field to show the times(UTC
     ~$ cd <repo>
     ~$ go run cmd/main.go <cron-expression>
     ~$ go run cmd/main.go "*/15 0 1,15 * 1-5 /usr/bin/find"            --> example1
-    ~$ go run cmd/main.go "5 4 */15,4 2,SEP */2,Mon,5 /usr/bin/find"   --> example2
+    ~$ go run cmd/main.go "5 4 */15,4 2,SEP */2,Mon,5 cmd"             --> example2
     ```
 4. Save & Run with binary:
     ```
