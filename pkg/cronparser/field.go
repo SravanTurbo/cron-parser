@@ -13,8 +13,8 @@ type fieldRange struct {
 	interval int
 }
 
-const FRInitBounds = -1
-const FRInitInterval = 1
+const FRInitBounds = -1  //Initial Bounds of a Cron Field Range
+const FRInitInterval = 1 //Initial Interval for a Cron Field Range
 
 func NewFieldRange(expr string) *fieldRange {
 	return &fieldRange{expr: expr, min: FRInitBounds, max: FRInitBounds, interval: FRInitInterval}

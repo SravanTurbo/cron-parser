@@ -76,6 +76,28 @@ func Parse(cronExpr string) (*Schedule, error) {
 		cmd:    cronFields[5]}, nil
 }
 
+func validate(cronExpr string) ([]string, error) {
+	cronFields := strings.Split(cronExpr, " ")
+	if len(cronFields) != 6 {
+		return nil, errors.New("Validation Error: invalid number of cron fields")
+	}
+
+	pattern := `[/*/,/-/\0-9]|(MON|TUE|WED|THU|FRI|SAT|SUN)|(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)`
+	re, err := regexp.Compile(pattern)
+	if err != nil {
+		return nil, errors.New("Validation Error: failed to compile Regexp")
+	}
+
+	for i := 0; i < 5; i++ {
+		cronFields[i] = strings.ToUpper(cronFields[i])
+		if !re.MatchString(cronFields[i]) {
+			return nil, errors.New("Validation Error: invalid time field")
+		}
+	}
+
+	return cronFields, nil
+}
+
 func parseField(fieldExpr string, bounds bound, abbreviationMap map[string]string) ([]int, error) {
 	uniqueMap := make(map[int]struct{})
 
@@ -83,7 +105,7 @@ func parseField(fieldExpr string, bounds bound, abbreviationMap map[string]strin
 	for _, expr := range exprs {
 		valueList, err := computeField(expr, bounds, abbreviationMap)
 		if err != nil {
-			err := errors.New("invalid cron: " + err.Error())
+			err := errors.New("Parsing Error: " + err.Error())
 			return nil, err
 		}
 
@@ -131,25 +153,4 @@ func computeField(expr string, bounds bound, abbreviationMap map[string]string) 
 
 	return result, nil
 
-}
-
-func validate(cronExpr string) ([]string, error) {
-	cronFields := strings.Split(cronExpr, " ")
-	if len(cronFields) != 6 {
-		return nil, errors.New("validation error: invalid number of cron fields")
-	}
-
-	pattern := `[\*\,\-\/0-9a-zA-Z]`
-	re, err := regexp.Compile(pattern)
-	if err != nil {
-		return nil, errors.New("validation error: failed to compile Regexp")
-	}
-
-	for i := 0; i < 5; i++ {
-		if !re.MatchString(cronFields[i]) {
-			return nil, errors.New("validation error: invalid time field")
-		}
-	}
-
-	return cronFields, nil
 }

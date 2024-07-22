@@ -10,9 +10,10 @@ func TestValidator(t *testing.T) {
 		cronExpr string
 		expected string
 	}{
-		{name: "extra space in separator", cronExpr: "*/15 0 1, 2 2 1-5 /usr/bin/find", expected: "validation error: invalid number of cron fields"},
-		{name: "invalid number of fields", cronExpr: "*/15 0 1,15 1-5 /usr/bin/find", expected: "validation error: invalid number of cron fields"},
-		{name: "invalid special character", cronExpr: "*/15 0 ? 2 1-5 /usr/bin/find", expected: "validation error: invalid time field"},
+		{name: "extra space in separator", cronExpr: "*/15 0 1, 2 2 1-5 /usr/bin/find", expected: "Validation Error: invalid number of cron fields"},
+		{name: "invalid number of fields", cronExpr: "*/15 0 1,15 1-5 /usr/bin/find", expected: "Validation Error: invalid number of cron fields"},
+		{name: "invalid special character", cronExpr: "*/15 0 ? 1 1-5 /usr/bin/find", expected: "Validation Error: invalid time field"},
+		{name: "invalid special character", cronExpr: "*/15 0 L 2 1-5 /usr/bin/find", expected: "Validation Error: invalid time field"},
 	}
 
 	for _, tc := range failureTestCases {
@@ -21,6 +22,14 @@ func TestValidator(t *testing.T) {
 			assertError(t, err, tc.expected)
 		})
 	}
+
+	t.Run("valid case with abbr", func(t *testing.T) {
+		cronExpr := "*/15 0 1 jan Mon /usr/bin/find"
+		_, err := validate(cronExpr)
+		if err != nil {
+			t.Fatal("error is not expected here, but got one: ", err)
+		}
+	})
 }
 
 func TestComputeField(t *testing.T) {
@@ -78,8 +87,8 @@ func TestParseField(t *testing.T) {
 		abbr     map[string]string
 		expected string
 	}{
-		{name: "out of bounds", expr: "1,4,13", bounds: MonthBound, abbr: MONTH_ABBREVIATIONS, expected: "invalid cron: invalid value, out of bounds"},
-		{name: "chars in expr", expr: "1,a,13", bounds: MonthBound, abbr: MONTH_ABBREVIATIONS, expected: "invalid cron: strconv.Atoi: parsing \"a\": invalid syntax"},
+		{name: "out of bounds", expr: "1,4,13", bounds: MonthBound, abbr: MONTH_ABBREVIATIONS, expected: "Parsing Error: invalid value, out of bounds"},
+		{name: "chars in expr", expr: "1,a,13", bounds: MonthBound, abbr: MONTH_ABBREVIATIONS, expected: "Parsing Error: strconv.Atoi: parsing \"a\": invalid syntax"},
 	}
 
 	for _, tc := range failureTestCases {

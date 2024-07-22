@@ -84,9 +84,12 @@ Given a cron expression string, it expands each time field to show the times(UTC
 
 ### As a module in your project: (TODO)
 
+Since it is developed as a package, can be added to a project:
+
 1. Add pkg to your repository:
 
     ```
+    ~$ cd <project-folder>
     ~$ go get github.com/sravan-turbo/cron-parser
     ```
 2. Import pkg in repository file and use:
