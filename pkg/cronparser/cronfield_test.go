@@ -259,7 +259,7 @@ func TestBoundFormat(t *testing.T) {
 	for _, tc := range successTestCases {
 		t.Run(tc.name, func(t *testing.T) {
 			got, err := formatBound(tc.val, tc.abbr)
-			assertSuccess(t, tc.expected, got, err)
+			assertSuccess(t, got, tc.expected, err)
 		})
 	}
 }

@@ -8,6 +8,8 @@ import (
 	"strings"
 )
 
+const VALID_NUM_OF_CRON_FIELDS = 6
+
 type bound struct {
 	min, max int
 }
@@ -19,7 +21,7 @@ var MonthBound = bound{1, 12}
 var DOWBound = bound{0, 6}
 
 var DOW_ABBREVIATIONS = map[string]string{"SUN": "0", "MON": "1", "TUE": "2", "WED": "3", "THU": "4", "FRI": "5", "SAT": "6"}
-var MONTH_ABBREVIATIONS = map[string]string{"JAN": "1", "FEB": "2", "MAR": "3", "APR": "4", "MAY": "5", "JUN": "6", "JUL": "7", "AUG": "8", "SEP": "9", "OCT": "10", "NOV": "11", "DEC": "11"}
+var MONTH_ABBREVIATIONS = map[string]string{"JAN": "1", "FEB": "2", "MAR": "3", "APR": "4", "MAY": "5", "JUN": "6", "JUL": "7", "AUG": "8", "SEP": "9", "OCT": "10", "NOV": "11", "DEC": "12"}
 
 func PrintCronSchedule(cronExpr string) {
 	defer func() {
@@ -78,7 +80,7 @@ func Parse(cronExpr string) (*Schedule, error) {
 
 func validate(cronExpr string) ([]string, error) {
 	cronFields := strings.Split(cronExpr, " ")
-	if len(cronFields) != 6 {
+	if len(cronFields) != VALID_NUM_OF_CRON_FIELDS {
 		return nil, errors.New("Validation Error: invalid number of cron fields")
 	}
 
@@ -88,7 +90,8 @@ func validate(cronExpr string) ([]string, error) {
 		return nil, errors.New("Validation Error: failed to compile Regexp")
 	}
 
-	for i := 0; i < 5; i++ {
+	cmdIndex := VALID_NUM_OF_CRON_FIELDS - 1
+	for i := 0; i < cmdIndex; i++ {
 		cronFields[i] = strings.ToUpper(cronFields[i])
 		if !re.MatchString(cronFields[i]) {
 			return nil, errors.New("Validation Error: invalid time field")
@@ -103,7 +106,6 @@ func parseField(fieldExpr string, bounds bound, abbreviationMap map[string]strin
 
 	//handleComma:
 	exprs := strings.Split(fieldExpr, ",")
-
 	for _, expr := range exprs {
 		valueList, err := handleNonComma(expr, bounds, abbreviationMap)
 		if err != nil {
