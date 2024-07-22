@@ -52,12 +52,12 @@ func (cf *cronField) handleSingleValue() (err error) {
 func (cf *cronField) handleHyphen(abbreviationMap map[string]string) (err error) {
 	exprList := strings.Split(cf.expr, "-")
 	if len(exprList) == 2 {
-		cf.min, err = computeValue(exprList[0], abbreviationMap)
+		cf.min, err = formatBound(exprList[0], abbreviationMap)
 		if err != nil {
 			return
 		}
 
-		cf.max, err = computeValue(exprList[1], abbreviationMap)
+		cf.max, err = formatBound(exprList[1], abbreviationMap)
 		if err != nil {
 			return
 		}
@@ -65,30 +65,35 @@ func (cf *cronField) handleHyphen(abbreviationMap map[string]string) (err error)
 	return
 }
 
-func (cf cronField) handleInvalidExpr(bounds bound, initBounds int) error {
+func (cf cronField) handleInvalidExpr(bounds bound, initBounds int) (err error) {
 	if cf.min == initBounds || cf.max == initBounds {
-		return errors.New("invalid cron field")
+		err = errors.New("invalid cron field")
+		return
 	}
 
 	if cf.min < bounds.min || cf.max > bounds.max {
-		return errors.New("invalid value, out of bounds")
+		err = errors.New("invalid value, out of bounds")
+		return
 	}
 
 	if cf.min > cf.max {
-		return errors.New("invalid bounds")
+		err = errors.New("invalid bounds")
+		return
 	}
 
 	if cf.interval != 1 {
 		_range := bounds.max - bounds.min + 1
 		if cf.interval > _range || cf.interval == 0 {
-			return errors.New("invalid interval")
+			err = errors.New("invalid interval")
+			return
 		}
 	}
 
 	return nil
 }
 
-func computeValue(expr string, abbrMap map[string]string) (val int, err error) {
+func formatBound(expr string, abbrMap map[string]string) (val int, err error) {
+	//handleabbreviations
 	abbrVal, ok := abbrMap[strings.ToUpper(expr)]
 	if !ok {
 		abbrVal = expr

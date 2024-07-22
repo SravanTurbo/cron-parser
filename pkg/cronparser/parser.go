@@ -99,36 +99,37 @@ func validate(cronExpr string) ([]string, error) {
 }
 
 func parseField(fieldExpr string, bounds bound, abbreviationMap map[string]string) ([]int, error) {
-	uniqueMap := make(map[int]struct{})
+	uniqueValueMap := make(map[int]struct{})
 
 	//handleComma:
 	exprs := strings.Split(fieldExpr, ",")
+
 	for _, expr := range exprs {
-		valueList, err := computeField(expr, bounds, abbreviationMap)
+		valueList, err := handleNonComma(expr, bounds, abbreviationMap)
 		if err != nil {
 			err := errors.New("Parsing Error: " + err.Error())
 			return nil, err
 		}
 
 		for _, val := range valueList {
-			uniqueMap[val] = struct{}{}
+			uniqueValueMap[val] = struct{}{}
 		}
 	}
 
-	uniqueList := make([]int, 0, len(uniqueMap))
-	for key := range uniqueMap {
-		uniqueList = append(uniqueList, key)
+	uniqueValueList := make([]int, 0, len(uniqueValueMap))
+	for key := range uniqueValueMap {
+		uniqueValueList = append(uniqueValueList, key)
 	}
 
-	sort.Ints(uniqueList)
+	sort.Ints(uniqueValueList)
 
-	return uniqueList, nil
+	return uniqueValueList, nil
 }
 
-func computeField(expr string, bounds bound, abbreviationMap map[string]string) ([]int, error) {
-	cf := NewCronField(expr)
-	var result []int
+func handleNonComma(expr string, bounds bound, abbreviationMap map[string]string) ([]int, error) {
 	var err error
+
+	cf := NewCronField(expr)
 
 	if err = cf.handleSlash(); err != nil {
 		return nil, err
@@ -150,8 +151,7 @@ func computeField(expr string, bounds bound, abbreviationMap map[string]string) 
 		return nil, err
 	}
 
-	result = buildIntList(cf.min, cf.max, cf.interval)
+	cf.valueList = buildIntList(cf.min, cf.max, cf.interval)
 
-	return result, nil
-
+	return cf.valueList, nil
 }

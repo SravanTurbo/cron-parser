@@ -227,3 +227,39 @@ func TestInvalidExprHandler(t *testing.T) {
 		}
 	})
 }
+
+func TestBoundFormat(t *testing.T) {
+	failureTestCases := []struct {
+		name     string
+		val      string
+		abbr     map[string]string
+		expected string
+	}{
+		{name: "abbreviation", val: "january", abbr: MONTH_ABBREVIATIONS, expected: "strconv.Atoi: parsing \"january\": invalid syntax"},
+		{name: "abbreviation", val: "L", abbr: map[string]string{}, expected: "strconv.Atoi: parsing \"L\": invalid syntax"},
+	}
+
+	for _, tc := range failureTestCases {
+		t.Run(tc.name, func(t *testing.T) {
+			_, err := formatBound(tc.val, tc.abbr)
+			assertError(t, err, tc.expected)
+		})
+	}
+
+	successTestCases := []struct {
+		name     string
+		val      string
+		abbr     map[string]string
+		expected int
+	}{
+		{name: "abbreviation", val: "jan", abbr: MONTH_ABBREVIATIONS, expected: 1},
+		{name: "abbreviation", val: "2134", abbr: map[string]string{}, expected: 2134},
+	}
+
+	for _, tc := range successTestCases {
+		t.Run(tc.name, func(t *testing.T) {
+			got, err := formatBound(tc.val, tc.abbr)
+			assertSuccess(t, tc.expected, got, err)
+		})
+	}
+}

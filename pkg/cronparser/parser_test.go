@@ -32,7 +32,7 @@ func TestValidator(t *testing.T) {
 	})
 }
 
-func TestComputeField(t *testing.T) {
+func TestNonCommaHandler(t *testing.T) {
 	failureTestCases := []struct {
 		name     string
 		expr     string
@@ -51,7 +51,7 @@ func TestComputeField(t *testing.T) {
 
 	for _, tc := range failureTestCases {
 		t.Run(tc.name, func(t *testing.T) {
-			_, err := computeField(tc.expr, tc.bounds, tc.abbr)
+			_, err := handleNonComma(tc.expr, tc.bounds, tc.abbr)
 			assertError(t, err, tc.expected)
 		})
 	}
@@ -73,7 +73,7 @@ func TestComputeField(t *testing.T) {
 
 	for _, tc := range successTestCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got, err := computeField(tc.expr, tc.bounds, tc.abbr)
+			got, err := handleNonComma(tc.expr, tc.bounds, tc.abbr)
 			assertSuccess(t, got, tc.expected, err)
 		})
 	}
